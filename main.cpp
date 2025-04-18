@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <limits>
+#include <ctime> // for srand(time(0))
 using namespace std;
 
 const char HUMAN = 'X';
@@ -97,17 +98,35 @@ public:
 
     int findBestMove(const GameState& state) {
         int bestScore = numeric_limits<int>::min();
-        int bestMove = -1;
+        vector<int> bestMoves;
+
+        int moveNumber = 9 - state.getAvailableMoves().size();
+        cout << "\n[AI TURN] Move #" << moveNumber + 1 << ": Evaluating all possible moves...\n";
 
         for (int move : state.getAvailableMoves()) {
             GameState newState = state.makeMove(move, COMPUTER);
             int score = minimax(newState, false);
+
+            // 👇 Print score of each possible move
+            cout << "→ Position " << move << " has score: " << score << endl;
+
             if (score > bestScore) {
                 bestScore = score;
-                bestMove = move;
+                bestMoves.clear();
+                bestMoves.push_back(move);
+            } else if (score == bestScore) {
+                bestMoves.push_back(move);
             }
         }
-        return bestMove;
+
+        // RANDOMNESS: Pick one of the best moves randomly if there's a tie
+        srand(time(0));
+        int randomIndex = rand() % bestMoves.size();
+        int chosenMove = bestMoves[randomIndex];
+
+        cout << "[AI DECISION] Chose position " << chosenMove << " with score: " << bestScore << "\n" << endl;
+
+        return chosenMove;
     }
 };
 
